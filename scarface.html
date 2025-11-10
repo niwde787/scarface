@@ -3,88 +3,192 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yandel - SCARFACE</title>
+    <title>Yandel - Scarface</title>
+    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- GSAP for animations -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    
+    <!-- GSAP Animation Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;700;900&display=swap');
-        
+        /* Custom Styles */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Prevent horizontal scroll */
+        }
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #000; /* Fallback */
+            color: #ffffff;
             position: relative;
-            overflow: hidden;
-        }
-
-        /* Split background */
-        .split-bg::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 50%;
-            height: 100%;
-            background-color: #000;
-            z-index: -1;
-        }
-
-        .split-bg::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            right: 0;
-            width: 50%;
-            height: 100%;
-            background-color: #fff;
-            z-index: -1;
-        }
-
-        /* Glassmorphism effect */
-        .glass-container {
-            background: rgba(128, 128, 128, 0.2); /* Semi-transparent gray */
-            -webkit-backdrop-filter: blur(15px);
-            backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-        }
-
-        /* Title styling for color inversion */
-        .inverted-title {
-            color: #fff; /* Default color (will be inverted over white) */
-            mix-blend-mode: difference;
         }
         
-        .inverted-red-title {
-            color: #ED1C24; /* Red color (will be inverted over white) */
+        /* Split background */
+        .split-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            display: flex;
+        }
+        .split-bg .left {
+            width: 50%;
+            height: 100%;
+            background-color: #000000;
+        }
+        .split-bg .right {
+            width: 50%;
+            height: 100%;
+            background-color: #ffffff;
+        }
+        
+        /* Glassmorphism container */
+        .glass-container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Inverted title color effect */
+        .inverted-title {
             mix-blend-mode: difference;
+            filter: invert(1);
+        }
+        
+        /* Custom Red Title (doesn't invert) */
+        .red-title {
+            color: #ED1C24; /* Red from SVG */
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        
+        /* Custom Red Countdown Color */
+        .countdown-red {
+            color: #ED1C24;
+        }
+        
+        /* Custom Red Button */
+        .btn-red {
+            background-color: #ED1C24;
+            color: #ffffff;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+        .btn-red:hover {
+            background-color: #c0161d; /* Darker red on hover */
+            transform: scale(1.05);
+        }
+        
+        /* Scrollbar for Tour Dates */
+        .tour-dates-container {
+            max-height: 400px;
+            overflow-y: auto;
+            /* Custom scrollbar styles */
+            scrollbar-width: thin;
+            scrollbar-color: #ED1C24 rgba(255, 255, 255, 0.1);
+        }
+        .tour-dates-container::-webkit-scrollbar {
+            width: 8px;
+        }
+        .tour-dates-container::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+        .tour-dates-container::-webkit-scrollbar-thumb {
+            background-color: #ED1C24;
+            border-radius: 10px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* Ensure countdown text is bold */
-        #countdown-values > div > span {
-            font-weight: 700;
-            font-size: 2.25rem; /* 3xl */
-            line-height: 2.5rem;
+        /* Video Container */
+        .video-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #000; /* Black background for video */
+            overflow: hidden; /* Hide parts of video that go out of bounds */
         }
+
+        .video-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Cover the container */
+        }
+        
+        /* Unmute Button Overlay */
+        #unmute-button {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            z-index: 10;
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: 1px solid white;
+            border-radius: 9999px; /*_ full rounded */
+            padding: 8px 16px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            opacity: 0; /* Start hidden, fade in with JS */
+            transition: opacity 0.5s ease;
+        }
+        
+        #unmute-button.hidden {
+            display: none;
+        }
+
     </style>
 </head>
-<body class="split-bg min-h-screen w-full flex items-center justify-center p-4 overflow-auto">
+<body class="relative w-full">
+    
+    <!-- Split Background -->
+    <div class="split-bg">
+        <div class="left"></div>
+        <div class="right"></div>
+    </div>
+    
+    
+    <!-- Header Logo -->
+    <header id="logo" class="flex justify-center items-center my-6 md:my-8 opacity-0 z-20 relative px-4" style="transform: translateY(-50px);">
+        <!-- Logo Image -->
+        <img src="https://raw.githubusercontent.com/niwde787/scarface/refs/heads/main/scarface-logo.png" alt="Yandel Scarface Logo" class="w-full max-w-sm">
+    </header>
+    
+    
+    <!-- Main Content Wrapper -->
+    <main class="w-full max-w-lg z-10 mx-auto relative px-4 py-8 md:py-12">
 
-    <main class="w-full h-full flex flex-col items-center justify-center">
-        <!-- Logo Header -->
-        <header id="logo-header" class="w-full max-w-lg text-center py-6 md:py-10 opacity-0" style="transform: translateY(-20px);">
-            <h2 class="inverted-red-title text-3xl font-bold tracking-widest uppercase">
-                Yandel
-            </h2>
-            <img 
-                src="https://raw.githubusercontent.com/niwde787/scarface/901571cdb34ba74d000fbfd92c9f1605ed7d136e/Scarface_logo.svg" 
-                alt="Scarface Logo" 
-                class="inverted-title w-full h-auto px-4"
-            />
-        </header>
-
-        <!-- Main Content Box -->
-        <div id="content-box" class="w-full max-w-lg glass-container rounded-3xl p-6 md:p-8 opacity-0" style="transform: scale(0.9);">
+        <!-- Video Box -->
+        <div id="video-box" class="w-full glass-container rounded-3xl opacity-0 mb-6 overflow-hidden" style="transform: scale(0.9);">
+            <!-- Video Player -->
+            <div id="video-container-inner" class="video-container w-full">
+                <video 
+                    id="hero-video"
+                    src="https://video.wixstatic.com/video/6f02a6_00b5b1550029489dac9de72027a91f73/1080p/mp4/file.mp4" 
+                    autoplay 
+                    loop 
+                    muted 
+                    playsinline>
+                </video>
+                <!-- Unmute Button -->
+                <button id="unmute-button">
+                    Click to Unmute
+                </button>
+            </div>
+        </div>
+        
+        <!-- Album & Countdown Box -->
+        <div id="content-box" class="w-full glass-container rounded-3xl p-6 md:p-8 opacity-0 mb-6" style="transform: scale(0.9);">
             <div class="flex flex-col items-center">
                 
                 <!-- Album Cover -->
@@ -93,128 +197,436 @@
                         src="https://raw.githubusercontent.com/niwde787/scarface/refs/heads/main/scarface.jpg" 
                         alt="Album Cover" 
                         class="w-full h-full object-cover"
-                        onerror="this.onerror=null;this.src='https://placehold.co/600x600/000000/ED1C24?text=SCARFACE';this.classList.add('bg-black');"
-                    >
+                        onerror="this.src='https://placehold.co/600x600/ED1C24/white?text=Scarface';">
                 </div>
-
-                <!-- Spotify Pre-Save Button -->
-                <a 
-                    id="presave-button"
-                    href="https://lnk.to/Yandel-ScarfacePR?lf_source=qr" 
-                    target="_blank" rel="noopener noreferrer"
-                    class="block w-full text-white font-bold py-4 px-6 rounded-full uppercase tracking-wider text-center text-base md:text-lg transition-all duration-300 ease-in-out transform hover:scale-105 hover:opacity-90 mb-5 shadow-lg opacity-0"
-                    role="button"
-                    style="background-color: #ED1C24;"
-                >
+                
+                <!-- Pre-Save Button -->
+                <a id="presave-button" href="https://lnk.to/Yandel-ScarfacePR?lf_source=qr" target="_blank" rel="noopener noreferrer" 
+                   class="btn-red font-bold uppercase rounded-full py-4 px-10 text-lg shadow-lg mb-6 opacity-0">
                     pre-save
                 </a>
-
+                
                 <!-- Countdown Timer -->
-                <div id="countdown" class="flex flex-col items-center justify-around text-center font-light w-full opacity-0" style="text-shadow: 0 1px 3px rgba(0,0,0,0.5); color: #ED1C24;">
-                    <div id="countdown-values" class="flex justify-around w-full max-w-sm mb-2">
+                <div id="countdown" class="text-center opacity-0">
+                    <div id="countdown-timer" class="flex justify-center gap-4 md:gap-6 text-2xl md:text-5xl font-extrabold countdown-red mb-2">
                         <div>
                             <span id="days">00</span>
-                            <div class="text-xs uppercase">Days</div>
                         </div>
+                        <div>:</div>
                         <div>
                             <span id="hours">00</span>
-                            <div class="text-xs uppercase">Hours</div>
                         </div>
+                        <div>:</div>
                         <div>
                             <span id="minutes">00</span>
-                            <div class="text-xs uppercase">Mins</div>
                         </div>
+                        <div>:</div>
                         <div>
                             <span id="seconds">00</span>
-                            <div class="text-xs uppercase">Secs</div>
                         </div>
                     </div>
+                    <div class="flex justify-center gap-4 md:gap-6 text-xs uppercase font-bold countdown-red" style="padding-left: 6px;">
+                        <span class="w-8 md:w-10">Days</span>
+                        <span class="w-8 md:w-10" style="margin-left: -12px;">Hours</span>
+                        <span class="w-8 md:w-10" style="margin-left: -5px;">Mins</span>
+                        <span class="w-8 md:w-10" style="margin-left: -2px;">Secs</span>
+                    </div>
                 </div>
-
             </div>
         </div>
+
+        <!-- Tour Section Box -->
+        <div id="tour-box" class="w-full glass-container rounded-3xl p-6 md:p-8 opacity-0" style="transform: scale(0.9);">
+            <h2 class="text-2xl md:text-3xl font-extrabold uppercase text-center mb-6 red-title">
+                TOUR
+            </h2>
+            
+            <!-- Tour Dates List -->
+            <div class="tour-dates-container pr-3">
+                <ul class="space-y-6">
+                    
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">NOV 11, 2025</div>
+                            <div class="font-semibold">Pearl Concert Theater</div>
+                            <div class="text-sm opacity-80">Las Vegas, NV</div>
+                        </div>
+                        <a href="https://www.axs.com/events/1081962/yandel-tickets?skin=palmscasinoresort" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+                    
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">NOV 14, 2025</div>
+                            <div class="font-semibold">Yaamava' Theater</div>
+                            <div class="text-sm opacity-80">Highland, CA</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/event/Z7r9jZ1A7_MQf" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+                    
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">NOV 15, 2025</div>
+                            <div class="font-semibold">Arizona Financial Theatre</div>
+                            <div class="text-sm opacity-80">Phoenix, AZ</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-sinfonico-phoenix-arizona-11-15-2025/event/1900630EC7813526" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+                    
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">NOV 16, 2025</div>
+                            <div class="font-semibold">Abraham Chavez Theatre</div>
+                            <div class="text-sm opacity-80">El Paso, TX</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-sinfonico-el-paso-texas-11-16-2025/event/0C006337B215332D" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+                    
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">NOV 20, 2025</div>
+                            <div class="font-semibold">Boeing Center at Tech Port</div>
+                            <div class="text-sm opacity-80">San Antonio, TX</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/event/Z7r9jZ1A7jwA7" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+                    
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">NOV 21, 2025</div>
+                            <div class="font-semibold">ACL Live at The Moody Theater</div>
+                            <div class="text-sm opacity-80">Austin, TX</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/event/Z7r9jZ1A7jwAY" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+                    
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">NOV 22, 2025</div>
+                            <div class="font-semibold">McAllen Performing Arts Center</div>
+                            <div class="text-sm opacity-80">McAllen, TX</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-sinfonico-mcallen-texas-11-22-2025/event/3A006338A0393F86" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">NOV 23, 2025</div>
+                            <div class="font-semibold">McAllen Performing Arts Center</div>
+                            <div class="text-sm opacity-80">McAllen, TX</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-sinfonico-mcallen-texas-11-23-2025/event/3A00634FA56F694C" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">NOV 28, 2025</div>
+                            <div class="font-semibold">Movistar Arena</div>
+                            <div class="text-sm opacity-80">Bogotá, CO</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-tickets/artist/1907949" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">DEC 05, 2025</div>
+                            <div class="font-semibold">Cal Coast Credit Union Open Air Theatre</div>
+                            <div class="text-sm opacity-80">San Diego, CA</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-sinfonico-san-diego-california-12-05-2025/event/0A006336E06834AE" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">DEC 06, 2025</div>
+                            <div class="font-semibold">William Saroyan Theatre</div>
+                            <div class="text-sm opacity-80">Fresno, CA</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-sinfonico-fresno-california-12-06-2025/event/1C00633A8B602A56" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">DEC 07, 2025</div>
+                            <div class="font-semibold">San Jose Civic</div>
+                            <div class="text-sm opacity-80">San Jose, CA</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-sinfonico-san-jose-california-12-07-2025/event/1C006337D63B5701" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">DEC 12, 2025</div>
+                            <div class="font-semibold">The Union Event Center</div>
+                            <div class="text-sm opacity-80">Salt Lake City, UT</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-sinfonico-salt-lake-city-utah-12-12-2025/event/1E006337DC4B53B6" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">DEC 14, 2025</div>
+                            <div class="font-semibold">Paramount Theatre</div>
+                            <div class="text-sm opacity-80">Denver, CO</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-sinfonico-denver-colorado-12-14-2025/event/1E006338B9543880" target_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">JAN 25, 2026</div>
+                            <div class="font-semibold">Movistar Arena</div>
+                            <div class="text-sm opacity-80">Madrid, ES</div>
+                        </div>
+                        <a href="https://www.ticketmaster.es/event/yandel-entradas/575243980" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">JAN 26, 2026</div>
+                            <div class="font-semibold">Movistar Arena</div>
+                            <div class="text-sm opacity-80">Madrid, ES</div>
+                        </div>
+                        <a href="https://www.ticketmaster.es/event/yandel-entradas/122004517" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">JAN 31, 2026</div>
+                            <div class="font-semibold">Auditorio Nacional</div>
+                            <div class="text-sm opacity-80">Ciudad de México, MX</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com.mx/yandel-sinfonico-ciudad-de-mexico-31-01-2026/event/3D006314AB7A3DB8?_gl=1*1c2djul*_ga*MTE4MzIxNDU4LjE3NjEwNjUzMzU.*_ga_C1T806G4DF*czE3NjI3MjczOTYkbzIkZzEkdDE3NjI3Mjg4MDQkajYwJGwwJGgw*_ga_H1KKSGW33X*czE3NjI3MjczOTckbzIkZzEkdDE3NjI3Mjg2NTYkajMwJGwwJGgw" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+
+                    <!-- Tour Date Item -->
+                    <li class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-center sm:text-left">
+                            <div class="font-extrabold countdown-red text-lg">FEB 11, 2026</div>
+                            <div class="font-semibold">Movistar Arena</div>
+                            <div class="text-sm opacity-80">Buenos Aires, AR</div>
+                        </div>
+                        <a href="https://www.ticketmaster.com/yandel-tickets/artist/1907949" target="_blank" rel="noopener noreferrer" class="btn-red font-bold uppercase rounded-full py-3 px-6 text-sm shadow-lg w-full sm:w-auto text-center">
+                            Tickets
+                        </a>
+                    </li>
+                    
+                </ul>
+            </div>
+        </div>
+
+        <!-- Footer Socials -->
+        <footer id="footer" class="w-full max-w-lg flex flex-wrap justify-center gap-6 py-8 opacity-0">
+            <!-- Instagram -->
+            <a href="https://www.instagram.com/yandel/" target="_blank" rel="noopener noreferrer" class="transition-transform transform hover:scale-110">
+                <img src="https://raw.githubusercontent.com/niwde787/scarface/d8461a0a5dc091c1131f78091517d70396dedb6c/Instagram.svg" alt="Instagram" class="w-8 h-8">
+            </a>
+            <!-- Facebook -->
+            <a href="https://www.facebook.com/YandelelOficial/" target="_blank" rel="noopener noreferrer" class="transition-transform transform hover:scale-110">
+                <img src="https://raw.githubusercontent.com/niwde787/scarface/d8461a0a5dc091c1131f78091517d70396dedb6c/Facebook.svg" alt="Facebook" class="w-8 h-8">
+            </a>
+            <!-- X (Twitter) -->
+            <a href="httpss://x.com/yandeloficial" target="_blank" rel="noopener noreferrer" class="transition-transform transform hover:scale-110">
+                <img src="https://raw.githubusercontent.com/niwde787/scarface/d8461a0a5dc091c1131f78091517d70396dedb6c/Twitter.svg" alt="X" class="w-8 h-8">
+            </a>
+            <!-- TikTok -->
+            <a href="https://www.tiktok.com/@yandel?lang=en" target="_blank" rel="noopener noreferrer" class="transition-transform transform hover:scale-110">
+                <img src="https://raw.githubusercontent.com/niwde787/scarface/d8461a0a5dc091c1131f78091517d70396dedb6c/TikTok.svg" alt="TikTok" class="w-8 h-8">
+            </a>
+            <!-- YouTube -->
+            <a href="https://www.youtube.com/@yandel/videos" target="_blank" rel="noopener noreferrer" class="transition-transform transform hover:scale-110">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 576 512" class="w-8 h-8" fill="#ED1C24">
+                    <path d="M549.655 124.083c-6.281-23.65-24.783-41.522-48.284-47.396C458.602 64 288 64 288 64S117.398 64 74.629 76.687c-23.501 5.873-41.999 23.746-48.284 47.396-12.684 47.601-12.684 147.164-12.684 147.164s0 99.563 12.684 147.164c6.285 23.65 24.783 41.522 48.284 47.396C117.398 448 288 448 288 448s170.602 0 213.371-12.687c23.501-5.873 41.999-23.746 48.284-47.396 12.684-47.601 12.684-147.164 12.684-147.164s0-99.563-12.684-147.164zM232.09 354.464V157.536l152.73 98.464-152.73 98.464z"/>
+                </svg>
+            </a>
+        </footer>
     </main>
-
+    
     <script>
-        // --- Countdown Script ---
-        (function() {
-            const targetDate = new Date("November 13, 2025 00:00:00").getTime();
+        // --- Video Unmute ---
+        document.addEventListener("DOMContentLoaded", () => {
+            const video = document.getElementById("hero-video");
+            const unmuteButton = document.getElementById("unmute-button");
 
+            // Check if video can play muted
+            video.play().then(() => {
+                // Autoplay started
+                // Fade in the unmute button after a delay
+                setTimeout(() => {
+                    unmuteButton.style.opacity = '1';
+                }, 1500);
+            }).catch(error => {
+                // Autoplay was blocked
+                console.warn("Autoplay was blocked by the browser.");
+                // You could show a play button overlay here if needed
+            });
+
+            // Handle unmute button click
+            unmuteButton.addEventListener("click", () => {
+                video.muted = false;
+                unmuteButton.classList.add("hidden");
+            });
+        });
+
+        // --- Countdown Timer ---
+        (function () {
+            const targetDate = new Date("2025-11-13T00:00:00").getTime();
             const countdownElement = document.getElementById("countdown");
+            const timerElement = document.getElementById("countdown-timer");
+
             const daysEl = document.getElementById("days");
             const hoursEl = document.getElementById("hours");
             const minutesEl = document.getElementById("minutes");
             const secondsEl = document.getElementById("seconds");
 
-            if (!countdownElement || !targetDate) return;
-
-            const interval = setInterval(() => {
+            function updateCountdown() {
                 const now = new Date().getTime();
                 const distance = targetDate - now;
 
                 if (distance < 0) {
-                    clearInterval(interval);
-                    countdownElement.innerHTML = `<div class="text-4xl font-bold uppercase" style="color: #ED1C24;">OUT NOW</div>`;
-                    countdownElement.classList.add('items-center');
+                    // Time's up
+                    if (countdownElement) {
+                        countdownElement.innerHTML = `
+                            <div class="text-5xl font-extrabold uppercase countdown-red">
+                                OUT NOW
+                            </div>
+                        `;
+                    }
+                    clearInterval(interval); // Stop the timer
                     return;
                 }
 
+                // Calculate time
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
                 const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-                daysEl.innerText = days.toString().padStart(2, '0');
-                hoursEl.innerText = hours.toString().padStart(2, '0');
-                minutesEl.innerText = minutes.toString().padStart(2, '0');
-                secondsEl.innerText = seconds.toString().padStart(2, '0');
+                // Update display
+                if (daysEl) daysEl.innerText = days.toString().padStart(2, '0');
+                if (hoursEl) hoursEl.innerText = hours.toString().padStart(2, '0');
+                if (minutesEl) minutesEl.innerText = minutes.toString().padStart(2, '0');
+                if (secondsEl) secondsEl.innerText = seconds.toString().padStart(2, '0');
+            }
 
-            }, 1000);
+            const interval = setInterval(updateCountdown, 1000);
+            updateCountdown(); // Initial call
         })();
 
-        // --- GSAP Animation Script ---
-        window.addEventListener('load', () => {
-            // GSAP timeline for staggered animations
+        // --- GSAP Animations ---
+        document.addEventListener("DOMContentLoaded", () => {
             const tl = gsap.timeline();
 
             // 1. Logo slides down and fades in
-            tl.to("#logo-header", {
+            tl.to("#logo", {
                 duration: 1,
                 y: 0,
                 opacity: 1,
                 ease: "power3.out"
             });
 
-            // 2. Content box scales up and fades in
+            // 2. Video box scales up and fades in
+            tl.to("#video-box", {
+                duration: 1,
+                scale: 1,
+                opacity: 1,
+                ease: "power3.out"
+            }, "-=0.7");
+
+            // 3. Content box scales up and fades in
             tl.to("#content-box", {
                 duration: 1,
                 scale: 1,
                 opacity: 1,
                 ease: "power3.out"
             }, "-=0.7"); // Starts 0.7s before the previous animation ends
-
-            // 3. Album cover fades in
+            
+            // 4. Album cover fades in
             tl.to("#album-cover", {
                 duration: 0.7,
                 opacity: 1,
                 ease: "power2.inOut"
             }, "-=0.5"); // Starts 0.5s before the previous animation ends
 
-            // 4. Pre-save button fades in
+            // 5. Pre-save button fades in
             tl.to("#presave-button", {
                 duration: 0.5,
                 opacity: 1,
                 ease: "power2.inOut"
             }, "-=0.4"); // Starts 0.4s before the previous animation ends
 
-            // 5. Countdown fades in
+            // 6. Countdown fades in
             tl.to("#countdown", {
                 duration: 0.5,
                 opacity: 1,
                 ease: "power2.inOut"
             }, "-=0.3"); // Starts 0.3s before the previous animation ends
-        });
+            
+            // 7. Tour box fades in
+            tl.to("#tour-box", {
+                duration: 1,
+                scale: 1,
+                opacity: 1,
+                ease: "power3.out"
+            }, "-=0.5"); // Starts 0.5s before the previous animation ends
 
+            // 8. Footer fades in
+            tl.to("#footer", {
+                duration: 1,
+                opacity: 1,
+                ease: "power3.out"
+            }, "-=0.5"); // Starts 0.5s before the previous animation ends
+        });
     </script>
 </body>
 </html>
